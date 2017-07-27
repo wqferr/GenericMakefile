@@ -75,7 +75,7 @@ LIBS :=
 # Compile flags
 #
 
-C_FLAGS = -L$(LIB_DIR) -I$(INC_DIR) $(addprefix -l,$(LIBS))
+C_FLAGS = -ansi -pedantic -Wall -Wextra -L$(LIB_DIR) -I$(INC_DIR) $(addprefix -l,$(LIBS))
 
 
 #
@@ -89,7 +89,7 @@ VALGRIND_FLAGS := --leak-check=full --show-leak-kinds=all
 # Flags for running gdb
 #
 
-GDB_FLAGS := 
+GDB_FLAGS :=
 
 #
 # Tree customization
@@ -262,7 +262,7 @@ VPATH += $(SRC_SUBDIR)
 
 RUN_CMD := $(BLD_DIR)/$(OUT)
 
-debug_mode = 
+debug_mode =
 
 ifneq (,$(findstring g,$(MAKECMDGOALS)))
 debug_mode = yep
@@ -341,7 +341,7 @@ zip:
 
 $(BLD_DIR)/$(OUT): $(OBJECTS)
 	@printf "Linking object files... "
-	@$(CC) $^ $(C_FLAGS) $(CFLAGS) -o $(BLD_DIR)/$(OUT) 
+	@$(CC) $^ $(C_FLAGS) $(CFLAGS) -o $(BLD_DIR)/$(OUT)
 	@printf "\n"
 	@printf "====================\n"
 	@printf " COMPILING COMPLETE \n"
