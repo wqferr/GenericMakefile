@@ -278,6 +278,7 @@ RUN_CMD := gdb $(RUN_CMD)
 debug_mode = yep
 endif
 
+RUN_CMD := $(RUN_CMD) $(ARGS)
 
 ifdef debug_mode
 C_FLAGS += -g
@@ -356,7 +357,7 @@ $(DEP_DIR)/%.d: %.$(SRC_FILE)
 	@$(CC) $(C_FLAGS) -MM -MT'$(OBJ_DIR)/$(notdir $(@:%.d=%.$(COMP_FILE)))' $< > $@
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
-include $(DEPS)
+-include $(DEPS)
 endif
 
 .gitignore:
