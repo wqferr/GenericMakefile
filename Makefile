@@ -370,7 +370,7 @@ $(BLD_DIR)/$(OUT): $(OBJECTS)
 	@printf "\n"
 	@printf "====================\n"
 	@printf " COMPILING COMPLETE \n"
-	@printf "====================\n\n"
+	@printf "====================\n"
 
 $(OBJ_DIR)/%.$(COMP_FILE):
 	@printf "Building -%s-... " $(notdir $(basename $<))
