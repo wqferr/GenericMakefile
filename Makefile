@@ -288,6 +288,10 @@ RUN_CMD := $(BLD_DIR)/$(OUT)
 
 debug_mode = 
 
+ifneq (,$(DEBUG))
+debug_mode = yep
+endif
+
 ifneq (,$(findstring g,$(MAKECMDGOALS)))
 debug_mode = yep
 endif
