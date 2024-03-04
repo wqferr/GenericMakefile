@@ -1,7 +1,6 @@
-#
 # MIT License
 #
-# Copyright (c) 2023 William Quelho Ferreira
+# Copyright (c) 2024 William Quelho Ferreira
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -52,70 +51,44 @@
 # Most commands are easily customizable by altering the values
 # on some variables, but work in their default state, so you
 # could use this Makefile as it is for a C project.
-#
 
 
 
-#
 # Output file name
-#
-
 OUT := out
 
-
-#
 # Zip file name
-#
-
 ZIP := proj.zip
 
-
-#
 # Compiler
-#
 CC := gcc
 
 
-#
 # Expressions which describe source and compiled files
-#
 SRC_FILE := c
 COMP_FILE := o
 
 SRC_PTRN := "*."$(SRC_FILE)
 
 
-#
 # Library names without `-l` prefix
 # e.g.: if you use math.h and GL/gl.h, instead of `-lm -lGL`,
 # set the definition to
 #     LIBS := m GL
-#
-
 LIBS :=
 
 
-#
 # Compile flags
-#
-
 C_FLAGS = -L$(LIB_DIR) -I$(INC_DIR) $(addprefix -l,$(LIBS))
 
 
-#
 # Flags for running valgrind
-#
-
 VALGRIND_FLAGS := --leak-check=full --show-leak-kinds=all
 
 
-#
 # Flags for running gdb
-#
+GDB_FLAGS :=
 
-GDB_FLAGS := 
-
-#
 # Tree customization
 # Default tree structure:
 #
@@ -125,13 +98,10 @@ GDB_FLAGS :=
 #   |  \_ .obj/ - Object files
 #   |  \_ .dep/ - Dependency files
 #   \_ include/ - Header files
-#   \_ test/ - Test case files
 #   \_ lib/ - Libraries
 #   \_ build/ - Output directory
-#
 
 
-#
 # ===============
 # |             |
 # |   TARGETS   |
@@ -140,45 +110,23 @@ GDB_FLAGS :=
 #
 # The main targets of this Makefile are:
 #   - tree:        Initialize project tree.
-#               Must be run before any other commands.
+#                  Must be run before any other commands.
 #
-#     - all:        Compile all modified/uncompiled files to create an executable.
+#   - all:         Compile all modified/uncompiled files to create an executable.
 #
-#     - rebuild:    Recompile all files regardless of modifications date.
+#   - rebuild:     Recompile all files regardless of modifications date.
 #
-#     - clean:    Cleanup compiled files and intermediate Makefile files.
+#   - clean:       Cleanup compiled files and intermediate Makefile files.
 #
-#     - run:        Run generated executable.
+#   - run:         Run generated executable.
 #
-#     - test:        Compares generated output to an expected output file.
-#                 More information can be found below.
+#   - arun:        Same as running `all`, followed by `run`.
 #
-#    - arun:        Same as running `all`, followed by `run`.
+#   - rebrun:      Same as running `rebuild`, followed by `run`.
 #
-#    - rebrun:    Same as running `rebuild`, followed by `run`.
+#   - valgrind:    Same as `run`, except executes over valgrind.
 #
-#    - zip:        Create a .zip file with the following files and directories:
-#                - This file
-#                - BLD_DIR/ (*)
-#                - INC_DIR/
-#                - SRC_DIR/ (*)
-#                - TST_DIR/
-#                - LIB_DIR/
-#
-#                (*) The executable, *.o files and *.d (intermediate Makefile
-#                files) are not included in the final .zip.
-#
-#                The .zip file is created in the project root (the same directory
-#                as this file).
-#
-#    - valgrind:    Same as `run`, except executes over valgrind.
-#
-#    - gdb:        Same as `run`, except executes over gdb.
-#
-#    - g:        Same as `clean` followed by `all`, but compiles using
-#                the `-g` flag.
-#
-#    - destroy-tree-yes-i-am-sure:    THERE IS NO WAY TO REVERSE THIS.
+#   - destroy-tree-yes-i-am-sure:    THERE IS NO WAY TO REVERSE THIS.
 #                                    All files, directories and subdirectories
 #                                    are removed, except for this file.
 #
@@ -194,50 +142,13 @@ SRC_DIR := ./src
 OBJ_DIR := $(SRC_DIR)/.obj
 DEP_DIR := $(SRC_DIR)/.dep
 INC_DIR := ./include
-TST_DIR := ./test
 LIB_DIR := ./lib
 BLD_DIR := ./build
-
-
-#
-# +=========================+
-# |                         |
-# |      TEST CASE I/O      |
-# |                         |
-# +=========================+
-#
-# You can define a file to be read as stdin by setting the command line
-# variable `case`. The input file is the one returned by `case_ifile` (defined
-# below). The file name returned by  `case_ifile` is looked for in the `TST_DIR`
-# directory.
-# If the make target is `test`, then the expected output is the one returned by
-# `case_ofile`, and also looked for in `TST_DIR`. After execution, the expected
-# output and the actual output are compared using the command stored in the
-# `diff` variable.
-#
 
 
 # File where the output of the last execution is saved to
 STDOUT_LOG := out.log
 
-
-#
-# Diff command used for comparing output and expected output
-# $(1) is the actual output
-# $(2) is the expected output
-#
-diff = vimdiff -MR $(1) $(2) 2> /dev/null
-
-
-#
-# Functions that return the input and output files associated with a test case
-# Default is case=case_name -> case_name.in as input and case_name.out as output
-#
-case_ifile = $(1:%=%.in)
-case_ofile = $(1:%=%.out)
-
-
-#
 # END OF CUSTOM STUFF
 #
 # If you want to fully understand how this Makefile works, feel free too look
@@ -262,8 +173,8 @@ case_ofile = $(1:%=%.out)
 # YOU HAVE BEEN WARNED.
 
 
-.PHONY: all run test clean arun rebrun rebuild zip tree\
-        destroy-tree-yes-i-am-sure valgrind gdb g
+.PHONY: all run clean arun rebrun rebuild tree\
+        destroy-tree-yes-i-am-sure valgrind gdb
 
 # Find all source files
 SOURCES := $(shell find $(SRC_DIR) -name $(SRC_PTRN) 2> /dev/null)
@@ -292,10 +203,6 @@ ifneq (,$(DEBUG))
 debug_mode = yep
 endif
 
-ifneq (,$(findstring g,$(MAKECMDGOALS)))
-debug_mode = yep
-endif
-
 ifneq (,$(findstring valgrind,$(MAKECMDGOALS)))
 RUN_CMD := valgrind $(VALGRIND_FLAGS) $(RUN_CMD)
 debug_mode = yep
@@ -312,29 +219,6 @@ ifdef debug_mode
 C_FLAGS += -g
 endif
 
-ifdef case
-I_FILE := $(TST_DIR)/$(call case_ifile,$(case))
-O_FILE := $(TST_DIR)/$(call case_ofile,$(case))
-
-
-ifndef I_FILE
-    $(error `case_ifile` function did not return a file name)
-endif
-
-
-ifneq (,$(findstring test,$(MAKECMDGOALS)))
-
-ifndef O_FILE
-    $(error `case_ofile` function did not return a file name)
-endif
-
-endif
-
-RUN_CMD += < $(I_FILE)
-
-endif
-
-
 all: $(BLD_DIR)/$(OUT)
 
 g: clean all
@@ -348,10 +232,6 @@ valgrind: run
 
 gdb: run
 
-test: run
-	@$(call diff,$(STDOUT_LOG),$(O_FILE))
-
-
 clean:
 	-@rm -f $(ZIP).zip
 	-@rm -f $(OBJ_DIR)/*.$(COMP_FILE)
@@ -363,11 +243,6 @@ arun: all run
 rebrun: rebuild run
 
 rebuild: clean all
-
-zip:
-	@zip -9q $(ZIP).zip $(BLD_DIR)/.gitkeep $(firstword $(MAKEFILE_LIST)) -r \
-	    $(INC_DIR)/ $(SRC_DIR)/ $(LIB_DIR)/ $(TST_DIR)/ -x \*.$(COMP_FILE) \*.d
-
 
 $(BLD_DIR)/$(OUT): $(OBJECTS)
 	@printf "Linking object files... "
@@ -409,9 +284,6 @@ tree: .gitignore
 	-@mkdir -p $(OBJ_DIR)
 	-@touch $(OBJ_DIR)/.gitkeep
 	@printf "%s directory created.\n" "Object"
-	-@mkdir -p $(TST_DIR)
-	-@touch $(TST_DIR)/.gitkeep
-	@printf "%s directory created.\n" "Test case"
 	-@mkdir -p $(LIB_DIR)
 	-@touch $(LIB_DIR)/.gitkeep
 	@printf "%s directory created.\n" "Library"
@@ -423,7 +295,7 @@ tree: .gitignore
 
 destroy-tree-yes-i-am-sure:
 	-@rm --preserve-root -rf $(SRC_DIR) $(INC_DIR) $(DEP_DIR) $(OBJ_DIR)
-	-@rm --preserve-root -rf $(TST_DIR) $(LIB_DIR) $(BLD_DIR)
+	-@rm --preserve-root -rf $(LIB_DIR) $(BLD_DIR)
 	-@rm -f $(STDOUT_LOG) .gitignore
 	@printf "Too late to change your mind.\n"
 	@printf "Goodbye project!\n"
